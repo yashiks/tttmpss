@@ -1,0 +1,179 @@
+<html>
+  <head>
+<script type="text/javascript" src="http://www.google.com/jsapi?fake=.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<style type="text/css">
+
+
+.main{
+background-image:url(bui.png);
+background-repeat: no-repeat;
+background-size: 81% 78.5%;
+background-position: 50% 50%;
+width:0;
+height:0;
+position:absolute;
+top:0;
+bottom:0;
+right:0;
+left:0;
+}
+
+
+</style>
+    <script type="text/javascript">
+
+
+    google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawSeriesChart);
+var chart;
+var options;
+var data1;
+var newRowID;
+var jsonData;
+		    var socket ;
+			var data;
+			function tableDefinition(){
+			 data = new google.visualization.DataTable();
+  data.addColumn('string', 'UID');
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Y');
+   data.addColumn('string', 'UserName');
+ 
+
+ /*data.addRows(3);
+   data.setValue(0,0,'1');
+   data.setValue(0,1,40);
+   data.setValue(0,2,50);
+   data.setValue(0,3,'yashi');
+    data.setValue(1,0,'3');
+   data.setValue(1,1,70);
+   data.setValue(1,2,50);
+   data.setValue(1,3,'ka');
+       data.setValue(2,0,'2');
+   data.setValue(2,1,20);
+   data.setValue(2,2,80);
+   data.setValue(2,3,'india');*/
+			}
+
+   
+    function drawSeriesChart() {
+tableDefinition();
+             options = {
+	 <!-- chartArea: {width:800,height:800},-->
+	//backgroundColor: { fill:'transparent' },
+	backgroundColor: 'none',
+        title: '',
+       hAxis: {title: 'X in Meters', ticks: [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90],baselineColor:'red',textPosition:'none'},
+        vAxis: {title: 'Y in Meters', ticks: [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90],baselineColor:'red',textPosition:'none'},
+        bubble: {textStyle: {fontSize: 2}},
+		sizeAxis: {maxSize:9,minSize:9}
+      };
+
+       chart = new google.visualization.BubbleChart(document.getElementById('series_chart_div'));
+      //chart.draw(data, options);
+	//  update();
+	  start();
+    }
+	
+	
+
+		function newDataReceived(newData) {
+
+			//plot.setData([getRandomData()]);
+		
+ jsonData = JSON.parse(newData);
+
+
+        var found = -1;
+			      for (var i = 0; i < data.getNumberOfRows(); i++) {
+                if (data.getValue(i,0) == jsonData.uid) {
+                    found = i;
+                    break;
+                }
+            }
+
+ newRowID=data.getNumberOfRows();
+if(found<0){
+ data.addRows(1);
+data.setValue(newRowID,0,jsonData.uid);
+   data.setValue(newRowID,1,jsonData.x);
+   data.setValue(newRowID,2,jsonData.y);
+   data.setValue(newRowID,3,jsonData.username);
+}else{
+  data.setValue(found,1,jsonData.x);
+   data.setValue(found,2,jsonData.y);
+             
+
+}
+
+			 chart.draw(data, options);
+			
+		}
+		
+		     socket = {
+            start: function () {
+               var location = "ws://localhost:9292/bubble";
+                this._ws = new WebSocket(location);
+                this._ws.onmessage = this._onmessage;
+                this._ws.onclose = this._onclose;
+            },
+
+            _onmessage: function (m) {
+                if (m.data) {
+                    var theData = m.data;
+                    newDataReceived(m.data);
+                }
+            },
+
+            _onclose: function (m) {
+                if (this._ws) {
+                    this._ws.close();
+                }
+            }
+        };
+
+        function stop() {
+            socket._onclose(null);
+        }
+
+        function start() {
+            socket.start();
+        }
+function myFunction(){
+		
+		 var locationString = document.getElementById('textbox1').value + '.png';
+	
+ document.getElementById("myImg").src = locationString;
+document.getElementById('field').innerHTML  = 'India is my country';
+
+  document.getElementById('textbox1').value = "";
+		}
+       
+    </script>
+  </head>
+  <body>
+  <!--Use class="main
+    <div id="series_chart_div"  style="width: 1000px; height: 900px;">
+	</div>-->
+	
+	  <div class="row">
+    <div id="series_chart_div" class="col-lg-12" style="background-image:url(bui.png);background-repeat: no-repeat;background-size: 81% 78.5%;background-position: 50% 50%;background-color:w;width: 1000px; height: 800px;"></div>
+    <div class="col-lg-2" style="background-color:lavenderblush;height: 800px;">
+	<input name="textbox1" id="textbox1" type="text" />
+ <button onclick="myFunction()">Searchs</button>  
+  <br/><br/>
+ 
+<img id="myImg" src="duser.png" width="150" height="150">
+<br/>
+ <div id="field" style="background-color:red; color:white; margin:5px; padding:10px;">
+
+
+</div> 
+
+  </body>
+</html>
